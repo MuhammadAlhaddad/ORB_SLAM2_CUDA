@@ -135,6 +135,11 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 
     mpSLAMDATA->CalculateAndPrintOutProcessingFrequency();
 
+    if (mpSLAMDATA->EnablePublishROSTopics())
+    {
+        mpSLAMDATA->PublishCurrentFrameForROS();
+    }
+
     if (Tcw.empty()) {
       return;
     }
@@ -147,8 +152,6 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         mpSLAMDATA->PublishPoseForROS(cv_ptr);
 
         mpSLAMDATA->PublishPointCloudForROS();
-
-        mpSLAMDATA->PublishCurrentFrameForROS();
     }
 }
 
