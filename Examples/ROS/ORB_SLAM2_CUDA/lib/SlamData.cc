@@ -24,7 +24,7 @@ SlamData::SlamData(ORB_SLAM2::System* pSLAM, ros::NodeHandle *nodeHandler, bool 
     all_point_cloud_pub = (*nodeHandler).advertise<sensor_msgs::PointCloud2>("point_cloud_all",1);
     ref_point_cloud_pub = (*nodeHandler).advertise<sensor_msgs::PointCloud2>("point_cloud_ref",1);
 
-    mInitCam2Ground_R << 1,0,0,0,0,1,0,-1,0;  // camera coordinate represented in ground coordinate system
+    mInitCam2Ground_R.setIdentity(); 
     mInitCam2Ground_t.setZero();     
     mTrans_cam2ground.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
     mTrans_cam2ground.block<3,3>(0,0) = mInitCam2Ground_R;
@@ -86,7 +86,7 @@ void SlamData::PublishTFForROS(cv::Mat Tcw, cv_bridge::CvImageConstPtr cv_ptr)
 
     new_transform.setRotation(tf_quaternion);
 
-    br.sendTransform(tf::StampedTransform(new_transform, ros::Time(cv_ptr->header.stamp.toSec()), "world", "ORB_SLAM2"));
+    br.sendTransform(tf::StampedTransform(new_transform, ros::Time(cv_ptr->header.stamp.toSec()), "local_map_camera", "jetbot_camera"));
 }
 
 void SlamData::PublishPoseForROS(cv_bridge::CvImageConstPtr cv_ptr)
@@ -94,7 +94,7 @@ void SlamData::PublishPoseForROS(cv_bridge::CvImageConstPtr cv_ptr)
     static int frame_num = 0;
     geometry_msgs::PoseStamped pose;
     pose.header.stamp = cv_ptr->header.stamp;
-    pose.header.frame_id ="world";
+    pose.header.frame_id ="local_map_camera";
     tf::poseTFToMsg(new_transform, pose.pose);
     pose_pub.publish(pose);
     geometry_msgs::PoseWithCovarianceStamped pose_inc_cov;
@@ -161,7 +161,7 @@ void SlamData::GetCurrentROSPointCloud(sensor_msgs::PointCloud2 &all_point_cloud
     pcl::PCLPointCloud2 pcl_pc1;
     pcl::toPCLPointCloud2(*cloud_all, pcl_pc1);    // pcl::PointXYZRGBA -> pcl::PCLPointCloud2
     pcl_conversions::fromPCL(pcl_pc1, all_point_cloud);  // pcl::PCLPointCloud2 -> sensor_msgs::PointCloud2
-    all_point_cloud.header.frame_id = "world";  
+    all_point_cloud.header.frame_id = "local_map_camera";  
     all_point_cloud.header.stamp = ros::Time::now();   
   
     for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
@@ -189,7 +189,7 @@ void SlamData::GetCurrentROSPointCloud(sensor_msgs::PointCloud2 &all_point_cloud
     pcl::PCLPointCloud2 pcl_pc2;
     pcl::toPCLPointCloud2(*cloud_ref, pcl_pc2); // pcl::PointXYZRGBA -> pcl::PCLPointCloud2
     pcl_conversions::fromPCL(pcl_pc2, ref_point_cloud);  // pcl::PCLPointCloud2 -> sensor_msgs::PointCloud2
-    ref_point_cloud.header.frame_id = "world";
+    ref_point_cloud.header.frame_id = "local_map_camera";
     ref_point_cloud.header.stamp = ros::Time::now(); 
 }
 
