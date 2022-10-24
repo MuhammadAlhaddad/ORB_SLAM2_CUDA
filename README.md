@@ -146,7 +146,7 @@ sudo apt-get install python-vtk
 ### Building ORB_SLAM2_CUDA
 Clone the repo and execute the build script for normal ORB-SLAM2:
 ```
-git clone https://github.com/MuhammadAlhaddad/ORB_SLAM2_CUDA.git ORB_SLAM2_CUDA
+git clone https://github.com/cds-mipt/ORB_SLAM2_CUDA.git ORB_SLAM2_CUDA
 cd ORB_SLAM2_CUDA
 chmod +x build.sh
 ./build.sh
